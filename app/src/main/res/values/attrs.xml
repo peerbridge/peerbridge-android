@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Emphasis values are used in combination with each "on" color to create three available levels of emphasis for text and content. -->
+    <attr name="emphasisHighAlpha" format="float"/>
+    <attr name="emphasisMediumAlpha" format="float"/>
+    <attr name="emphasisDisabledAlpha" format="float"/>
+
+</resources>

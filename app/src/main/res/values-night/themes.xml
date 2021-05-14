@@ -1,0 +1,24 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Theme.PeerBridge" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/light_blue_500</item>
+        <item name="colorPrimaryVariant">@color/light_blue_600</item>
+        <item name="colorOnPrimary">?android:textColorPrimary</item>
+
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/blue_500</item>
+        <item name="colorSecondaryVariant">@color/blue_600</item>
+        <item name="colorOnSecondary">?android:textColorPrimaryInverse</item>
+
+        <!-- Text color. -->
+        <item name="android:textColorPrimary">@color/material_grey_50</item>
+        <item name="android:textColorPrimaryDisableOnly">@color/material_grey_100</item>
+        <item name="android:textColorPrimaryInverse">@color/material_grey_850</item>
+        <item name="android:textColorPrimaryInverseDisableOnly">@color/material_grey_800</item>
+
+        <!-- Status bar color. -->
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:statusBarColor">@color/material_grey_900</item>
+    </style>
+</resources>

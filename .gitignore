@@ -1,0 +1,21 @@
+#built application files
+*.apk
+*.ap_
+
+# Local configuration file (sdk path, etc)
+local.properties
+
+# OS-specific files
+.DS_Store
+
+# Android Studio
+*.iml
+.idea
+
+# Gradle
+.gradle
+build/
+
+# Native
+.externalNativeBuild
+.cxx

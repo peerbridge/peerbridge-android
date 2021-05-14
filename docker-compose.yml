@@ -1,0 +1,20 @@
+version: "3.8"
+
+services:
+  sonarqube:
+    image: sonarqube:8.3-community
+    ulimits:
+      nproc: 65535
+    ports:
+      - "9000:9000"
+    volumes:
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_extensions:/opt/sonarqube/extensions
+      - sonarqube_logs:/opt/sonarqube/logs
+
+
+volumes:
+  sonarqube_data:
+  sonarqube_extensions:
+  sonarqube_logs:
+

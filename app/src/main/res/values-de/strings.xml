@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Users -->
+    <string name="user_joined">%s nutzt PeerBridge!</string>
+    <string name="user_token">Der Nutzer hat seine Push Benachrichtigungs Token mit dir geteilt!</string>
+</resources>

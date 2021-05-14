@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name" translatable="false">PeerBridge</string>
+
+    <!-- Notifications -->
+    <string name="default_notification_channel_id" translatable="false">com.peerbridge.android.fcm</string>
+
+    <!-- Icons -->
+    <string name="refresh" translatable="false">Refresh</string>
+    <string name="add" translatable="false">Add</string>
+    <string name="lock" translatable="false">Lock</string>
+
+    <!-- Users -->
+    <string name="user_joined">%s is using PeerBridge!</string>
+    <string name="user_token">This user has shared a push notification token!</string>
+
+</resources>

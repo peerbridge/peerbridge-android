@@ -1,0 +1,5 @@
+[submodule "secp256k1"]
+	path = secp256k1/src/main/cpp/secp256k1
+	url = https://github.com/peerbridge/secp256k1
+	branch = main
+	update = rebase
