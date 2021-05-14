@@ -1,0 +1,26 @@
+# Add 'repo' label to any root file changes
+repo:
+  - ./*
+
+# Add 'source' label to any change to src files within the source dir
+source:
+  - app/src/main/**/*
+  - secp256k1/src/main/**/*
+
+# Add 'unit-test' label to any change to files within the `test` dir
+unit-test:
+  - app/src/test/**/*
+  - secp256k1/src/test/**/*
+
+# Add 'instrumentation-test' label to any change to files within the `androidTest` dir
+instrumentation-test:
+  - app/src/androidTest/**/*
+  - secp256k1/src/androidTest/**/*
+
+# Add 'app' label to any change to files within the `PeerBridge App`
+app:
+  - app
+
+# Add 'secp256k1' label to any change to files within the `secp256k1` library
+secp256k1:
+  - secp256k1
