@@ -1,0 +1,58 @@
+name: Android
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    name: Build
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout 🛎
+      uses: actions/checkout@v2
+      with:
+        submodules: 'recursive'
+
+    - name: Setup JDK 11 🏗
+      uses: actions/setup-java@v2
+      with:
+        java-version: '11'
+        distribution: 'adopt'
+
+    - name: Cache Gradle packages 📦
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+
+    - name: Grant execute permission for gradlew 🏁
+      run: chmod +x gradlew
+
+    - name: Decode google-services.json 🏁
+      env:
+        GOOGLE_SERVICES: ${{ secrets.GOOGLE_SERVICES }}
+      run: echo $GOOGLE_SERVICES > app/google-services.json
+
+    - name: Build artifacts with Gradle 👀
+      run: ./gradlew build
+
+    - name: Upload Library Artifacts 💪
+      uses: actions/upload-artifact@v2
+      with:
+        name: secp256k1
+        path: secp256k1/build/outputs/aar/
+
+    - name: Upload App Artifacts 💪
+      uses: actions/upload-artifact@v2
+      with:
+        name: app
+        path: app/build/outputs/apk
