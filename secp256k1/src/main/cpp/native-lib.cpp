@@ -75,7 +75,7 @@ Java_com_peerbridge_secp256k1_Libsecp256k1_computePublicKeyHex(JNIEnv* env, jcla
 extern "C" JNIEXPORT jbyteArray JNICALL
 Java_com_peerbridge_secp256k1_Libsecp256k1_computeSecret(JNIEnv* env, jclass clazz, jbyteArray private_key, jbyteArray public_key) {
     const secp256k1::ByteArray privateKey = ConvertToVector(env, private_key);
-    const secp256k1::ByteArray publicKey = ConvertToVector(env, private_key);
+    const secp256k1::ByteArray publicKey = ConvertToVector(env, public_key);
 
     const std::unique_ptr<secp256k1::ByteArray> secret = secp256k1::Encryption::getInstance().computeSecret(privateKey, publicKey);
     if (!secret) return nullptr;
