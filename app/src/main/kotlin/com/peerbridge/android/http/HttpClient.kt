@@ -13,9 +13,9 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 
 internal object HttpClient {
-    private val client = OkHttpClient()
+    private val client by lazy { OkHttpClient() }
 
-    private val MediaTypeJson = "application/json; charset=utf-8".toMediaType()
+    private val MediaTypeJson by lazy { "application/json; charset=utf-8".toMediaType() }
 
     @Throws(IOException::class)
     suspend fun get(
