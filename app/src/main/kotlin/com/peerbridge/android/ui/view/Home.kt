@@ -19,13 +19,16 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.navigate
 import androidx.navigation.compose.rememberNavController
 import com.peerbridge.android.R
+import com.peerbridge.android.Screen
 import com.peerbridge.android.data.SampleMessageProvider
 import com.peerbridge.android.data.SampleMessagesProvider
 import com.peerbridge.android.model.Message
 import com.peerbridge.android.ui.component.Avatar
 import com.peerbridge.android.ui.component.PeerBridgeAppBar
+import com.peerbridge.android.ui.component.PeerBridgeIcon
 import com.peerbridge.android.ui.theme.*
 
 @Composable
@@ -74,14 +77,17 @@ fun Home(navController: NavHostController, messages: List<Message> = emptyList()
         PeerBridgeAppBar {
             Text(text = "PeerBridge", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.h5)
             Spacer(modifier = Modifier.weight(1F))
-            Icon(imageVector = ImageVector.vectorResource(id = R.drawable.ic_refresh), contentDescription = stringResource(id = R.string.refresh), modifier = Modifier
-                .padding(horizontal = 6.dp)
-                .width(20.dp)
-                .height(20.dp), tint = MaterialTheme.colors.onSurface)
-            Icon(imageVector = ImageVector.vectorResource(id = R.drawable.ic_plus), contentDescription = stringResource(id = R.string.add), modifier = Modifier
-                .padding(horizontal = 6.dp)
-                .width(24.dp)
-                .height(24.dp), tint = MaterialTheme.colors.onSurface)
+            PeerBridgeIcon(
+                imageVector = ImageVector.vectorResource(id = R.drawable.ic_refresh),
+                contentDescription = stringResource(id = R.string.refresh),
+                modifier = Modifier.clickable { },
+            )
+            PeerBridgeIcon(
+                imageVector = ImageVector.vectorResource(id = R.drawable.ic_plus),
+                contentDescription = stringResource(id = R.string.add),
+                modifier = Modifier.clickable { navController.navigate(Screen.Pair.route) },
+                size = 28.dp
+            )
         }
         LazyColumn(modifier = Modifier
             .fillMaxSize()

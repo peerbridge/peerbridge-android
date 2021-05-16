@@ -11,12 +11,15 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.peerbridge.android.ui.context.KeyPairProvider
 import com.peerbridge.android.ui.theme.PeerBridgeTheme
 import com.peerbridge.android.ui.theme.ThemePreviewParameterProvider
 import com.peerbridge.android.ui.view.Home
+import com.peerbridge.android.ui.view.Pair
 
 sealed class Screen(val route: String) {
     object Home : Screen("home")
+    object Pair : Screen("pair")
     object Chat : Screen("chat")
     object Profile : Screen("profile")
 }
@@ -26,15 +29,18 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            PeerBridgeTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(color = MaterialTheme.colors.background) {
-                    val navController = rememberNavController()
+            KeyPairProvider {
+                PeerBridgeTheme {
+                    // A surface container using the 'background' color from the theme
+                    Surface(color = MaterialTheme.colors.background) {
+                        val navController = rememberNavController()
 
-                    NavHost(navController = navController, startDestination = Screen.Home.route) {
-                        composable(Screen.Home.route) { Home(navController = navController) }
-                        composable(Screen.Chat.route) { Home(navController = navController) }
-                        composable(Screen.Profile.route) { Home(navController = navController) }
+                        NavHost(navController = navController, startDestination = Screen.Home.route) {
+                            composable(Screen.Home.route) { Home(navController = navController) }
+                            composable(Screen.Pair.route) { Pair(navController = navController) { startActivity(it) } }
+                            composable(Screen.Chat.route) { Home(navController = navController) }
+                            composable(Screen.Profile.route) { Home(navController = navController) }
+                        }
                     }
                 }
             }
