@@ -12,7 +12,7 @@ android {
 
     defaultConfig {
         applicationId = "com.peerbridge.android"
-        minSdk = 23
+        minSdk = 24
         targetSdk = 30
         versionCode = 1
         versionName = "1.0"
@@ -106,6 +106,13 @@ dependencies {
     implementation("com.google.firebase:firebase-messaging-ktx")
     implementation("com.google.firebase:firebase-analytics-ktx")
 
+    // Crypto - https://developer.android.com/topic/security/data -
+    implementation("androidx.security:security-crypto:1.1.0-alpha03")
+    implementation("androidx.security:security-identity-credential:1.0.0-alpha02")
+
+    // ZXing Android Embedded - https://github.com/journeyapps/zxing-android-embedded
+    implementation("com.journeyapps:zxing-android-embedded:4.2.0")
+
     // ViewModel - https://developer.android.com/kotlin/ktx#viewmodel
     // implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.1")
 
@@ -121,7 +128,7 @@ dependencies {
     // Kotlinx-Serialization
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.1.0")
 
-    // OkHttp
+    // OKHTTP3 - https://github.com/square/okhttp
     implementation("com.squareup.okhttp3:okhttp:4.9.0")
 
     // JUnit - https://github.com/junit-team/junit4
