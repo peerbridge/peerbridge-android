@@ -14,13 +14,10 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.peerbridge.android.crypto.md5
+import com.peerbridge.android.data.SamplePublicKeyProvider
 import com.peerbridge.android.ui.theme.PeerBridgeTheme
 import com.peerbridge.android.ui.theme.Blue500
 import com.peerbridge.android.ui.theme.ThemedPreviewParameterProvider
-
-class SampleAvatarProvider: ThemedPreviewParameterProvider<String>() {
-    override val items = sequenceOf("02caa8bded7764cca5bde64c10ae54fc91f4bcd2de08eb4c66b1e2dc3d9dd5519d")
-}
 
 @Composable
 fun Avatar(publicKeyHex: String, modifier: Modifier = Modifier, size: Dp = 32.dp) {
@@ -51,7 +48,7 @@ fun Avatar(publicKeyHex: String, modifier: Modifier = Modifier, size: Dp = 32.dp
 
 @Preview
 @Composable
-fun AvatarPreview(@PreviewParameter(SampleAvatarProvider::class) params: Pair<String, Boolean>) {
+fun AvatarPreview(@PreviewParameter(SamplePublicKeyProvider::class) params: Pair<String, Boolean>) {
     val (publicKeyHex, isDarkTheme) = params
     PeerBridgeTheme(darkTheme = isDarkTheme) {
         Surface(color = MaterialTheme.colors.background) {
