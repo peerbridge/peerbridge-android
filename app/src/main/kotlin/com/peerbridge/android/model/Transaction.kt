@@ -2,6 +2,7 @@ package com.peerbridge.android.model
 
 import android.text.format.DateUtils
 import android.util.Base64
+import androidx.room.*
 import com.peerbridge.android.crypto.Encryption
 import com.peerbridge.android.crypto.KeyPair
 import com.peerbridge.android.crypto.PublicKey
@@ -16,10 +17,11 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
+@Entity
 @Serializable
 @Suppress("ArrayInDataClass")
 data class Transaction(
-    val id: String,
+    @PrimaryKey val id: String,
     val sender: String,
     val receiver: String,
     val balance: Int = 0,
@@ -71,9 +73,24 @@ data class Transaction(
             return Json.decodeFromString(response.body!!.string())
         }
 
-        suspend fun fetch(publicKey: ByteArray): Collection<Transaction> {
-            val response = HttpClient.get("${Endpoints.main}/blockchain/accounts/transactions/get?account=${Hex.encodeToString(publicKey)}")
+        suspend fun fetch(publicKeyHex: String): Collection<Transaction> {
+            val response = HttpClient.get("${Endpoints.main}/blockchain/accounts/transactions/get?account=$publicKeyHex")
             return Json.decodeFromString<List<Transaction>>(response.body!!.string())
         }
     }
+}
+
+@Dao
+interface TransactionDao {
+    @Query("SELECT * FROM `transaction`")
+    fun getAll(): List<Transaction>
+
+    @Query("SELECT * FROM `transaction` WHERE sender LIKE :publicKeyHex OR receiver LIKE :publicKeyHex")
+    fun findByPublicKey(publicKeyHex: String): List<Transaction>
+
+    @Insert
+    fun insert(vararg transaction: Transaction)
+
+    @Delete
+    fun delete(transaction: Transaction)
 }
