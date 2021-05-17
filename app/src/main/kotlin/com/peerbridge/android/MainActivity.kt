@@ -11,7 +11,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.peerbridge.android.ui.context.KeyPairProvider
+import com.peerbridge.android.ui.context.PeerBridgeRoot
 import com.peerbridge.android.ui.theme.PeerBridgeTheme
 import com.peerbridge.android.ui.theme.ThemePreviewParameterProvider
 import com.peerbridge.android.ui.view.Home
@@ -29,17 +29,20 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            KeyPairProvider {
+            PeerBridgeRoot {
                 PeerBridgeTheme {
                     // A surface container using the 'background' color from the theme
                     Surface(color = MaterialTheme.colors.background) {
                         val navController = rememberNavController()
 
-                        NavHost(navController = navController, startDestination = Screen.Home.route) {
-                            composable(Screen.Home.route) { Home(navController = navController) }
-                            composable(Screen.Pair.route) { Pair(navController = navController) { startActivity(it) } }
-                            composable(Screen.Chat.route) { Home(navController = navController) }
-                            composable(Screen.Profile.route) { Home(navController = navController) }
+                        NavHost(
+                            navController = navController,
+                            startDestination = Screen.Home.route
+                        ) {
+                            composable(Screen.Home.route) { Home(navController) }
+                            composable(Screen.Pair.route) { Pair(navController, ::startActivity) }
+                            composable(Screen.Chat.route) { Home(navController) }
+                            composable(Screen.Profile.route) { Home(navController) }
                         }
                     }
                 }
