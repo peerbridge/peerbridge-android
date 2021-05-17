@@ -7,8 +7,8 @@ import com.peerbridge.android.crypto.PublicKey
 import com.peerbridge.android.model.Transaction
 import com.peerbridge.android.ui.theme.ThemedPreviewParameterProvider
 
-private val privateKeyHex = "a32da27d8aff2bcfd159e6a61d9fe13da6cf426bf19c7feb2b4e0d0d914d4d06"
-private val publicKeyHex = "0300db96ed8ea9e16350a16a7d01126ce6f00e6917cd4b2e70f838d159f653b510"
+private const val privateKeyHex = "a32da27d8aff2bcfd159e6a61d9fe13da6cf426bf19c7feb2b4e0d0d914d4d06"
+private const val publicKeyHex = "0300db96ed8ea9e16350a16a7d01126ce6f00e6917cd4b2e70f838d159f653b510"
 internal val keyPair = KeyPair(privateKeyHex, publicKeyHex)
 
 internal val defaultPublicKey = PublicKey("000000000000000000000000000000000000000000000000000000000000000000")
