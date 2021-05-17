@@ -113,6 +113,11 @@ dependencies {
     // ZXing Android Embedded - https://github.com/journeyapps/zxing-android-embedded
     implementation("com.journeyapps:zxing-android-embedded:4.2.0")
 
+    // Android Room - https://developer.android.com/training/data-storage/room
+    implementation("androidx.room:room-runtime:2.3.0")
+    implementation("androidx.room:room-ktx:2.3.0")
+    kapt("androidx.room:room-compiler:2.3.0")
+
     // ViewModel - https://developer.android.com/kotlin/ktx#viewmodel
     // implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.1")
 
