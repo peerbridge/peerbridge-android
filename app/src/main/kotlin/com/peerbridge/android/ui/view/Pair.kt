@@ -34,7 +34,7 @@ import com.google.zxing.qrcode.QRCodeWriter
 import com.google.zxing.common.BitMatrix
 import com.peerbridge.android.ui.theme.*
 
-fun encodeAsQRCode(text: String, size: Int = 512): ImageBitmap {
+private fun encodeAsQRCode(text: String, size: Int = 512): ImageBitmap {
     val writer = QRCodeWriter()
     val matrix: BitMatrix = writer.encode(text, BarcodeFormat.QR_CODE, size, size)
     val bitmap = Bitmap.createBitmap(matrix.width, matrix.height, Bitmap.Config.RGB_565)
@@ -47,7 +47,6 @@ fun encodeAsQRCode(text: String, size: Int = 512): ImageBitmap {
     return bitmap.asImageBitmap()
 }
 
-@Suppress("UNUSED_PARAMETER")
 @Composable
 fun Pair(navController: NavHostController, onShare: (intent: Intent) -> Unit = {}) {
     val (_, publicKeyHex) = LocalKeyPair.current
