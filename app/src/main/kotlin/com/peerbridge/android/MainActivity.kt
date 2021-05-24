@@ -10,18 +10,21 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.navArgument
 import androidx.navigation.compose.rememberNavController
+import com.peerbridge.android.crypto.PublicKey
+import com.peerbridge.android.data.defaultPublicKey
+import com.peerbridge.android.ui.context.LocalKeyPair
 import com.peerbridge.android.ui.context.PeerBridgeRoot
 import com.peerbridge.android.ui.theme.PeerBridgeTheme
 import com.peerbridge.android.ui.theme.ThemePreviewParameterProvider
-import com.peerbridge.android.ui.view.Home
-import com.peerbridge.android.ui.view.Pair
+import com.peerbridge.android.ui.view.*
 
 sealed class Screen(val route: String) {
     object Home : Screen("home")
     object Pair : Screen("pair")
-    object Chat : Screen("chat")
-    object Profile : Screen("profile")
+    object Chat : Screen("chat/{publicKey}")
+    object Profile : Screen("profile/{publicKey}")
 }
 
 class MainActivity : ComponentActivity() {
@@ -39,10 +42,10 @@ class MainActivity : ComponentActivity() {
                             navController = navController,
                             startDestination = Screen.Home.route
                         ) {
-                            composable(Screen.Home.route) { Home(navController) }
+                            composable(Screen.Home.route) { HomeView(navController) }
                             composable(Screen.Pair.route) { Pair(navController, ::startActivity) }
-                            composable(Screen.Chat.route) { Home(navController) }
-                            composable(Screen.Profile.route) { Home(navController) }
+                            composable(Screen.Chat.route) { ChatView(navController, it.arguments?.getString("publicKey")?.let { key -> PublicKey(key) } ?: defaultPublicKey) }
+                            composable(Screen.Profile.route) { Profile(navController, it.arguments?.getString("publicKey")?.let { key -> PublicKey(key) } ?: defaultPublicKey) }
                         }
                     }
                 }
