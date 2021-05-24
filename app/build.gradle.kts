@@ -2,8 +2,8 @@ plugins {
     id("com.android.application")
     kotlin("android")
     kotlin("kapt")
-    kotlin("plugin.serialization") version "1.4.30"
-    id("org.jetbrains.dokka") version "1.4.30"
+    kotlin("plugin.serialization") version "1.4.32"
+    id("org.jetbrains.dokka") version "1.4.32"
     id("com.google.gms.google-services")
 }
 
@@ -32,7 +32,12 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
         useIR = true
-        freeCompilerArgs = freeCompilerArgs + listOf("-Xuse-experimental=kotlin.ExperimentalUnsignedTypes", "-Xuse-experimental=kotlinx.serialization.ExperimentalSerializationApi", "-Xinline-classes")
+        freeCompilerArgs = freeCompilerArgs + listOf(
+            "-Xinline-classes",
+            "-Xuse-experimental=kotlin.ExperimentalUnsignedTypes",
+            "-Xuse-experimental=kotlinx.coroutines.ExperimentalCoroutinesApi",
+            "-Xuse-experimental=kotlinx.serialization.ExperimentalSerializationApi",
+        )
     }
 
     buildTypes {
@@ -64,8 +69,8 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerVersion = "1.4.30"
-        kotlinCompilerExtensionVersion = "1.0.0-beta01"
+        kotlinCompilerVersion = "1.4.32"
+        kotlinCompilerExtensionVersion = "1.0.0-beta07"
     }
 
     packagingOptions {
@@ -82,24 +87,24 @@ dependencies {
     implementation(project(":secp256k1"))
 
     // Core - https://developer.android.com/kotlin/ktx#core
-    implementation("androidx.core:core-ktx:1.3.2")
+    implementation("androidx.core:core-ktx:1.5.0")
 
     // AppCombat
-    implementation("androidx.appcompat:appcompat:1.2.0")
+    implementation("androidx.appcompat:appcompat:1.3.0")
 
     // Lifecycle - https://developer.android.com/kotlin/ktx#lifecycle
     // implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.3.1")
 
     // Compose
-    implementation("androidx.compose.ui:ui:1.0.0-beta06")
-    implementation("androidx.compose.ui:ui-tooling:1.0.0-beta06")
-    implementation("androidx.activity:activity-compose:1.3.0-alpha07")
-    implementation("androidx.navigation:navigation-compose:1.0.0-alpha10")
-    implementation("androidx.constraintlayout:constraintlayout-compose:1.0.0-alpha06")
+    implementation("androidx.compose.ui:ui:1.0.0-beta07")
+    implementation("androidx.compose.ui:ui-tooling:1.0.0-beta07")
+    implementation("androidx.activity:activity-compose:1.3.0-alpha08")
+    implementation("androidx.navigation:navigation-compose:2.4.0-alpha01")
+    implementation("androidx.constraintlayout:constraintlayout-compose:1.0.0-alpha07")
 
     // Material Design
     implementation("com.google.android.material:material:1.3.0")
-    implementation("androidx.compose.material:material:1.0.0-beta06")
+    implementation("androidx.compose.material:material:1.0.0-beta07")
 
     // Firebase
     implementation(platform("com.google.firebase:firebase-bom:27.1.0"))
@@ -140,7 +145,7 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
 
     // UI Tests
-    androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.0.0-beta06")
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.0.0-beta07")
 
     // Android Test
     androidTestImplementation("androidx.test.ext:junit:1.1.2")

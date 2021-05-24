@@ -8,11 +8,11 @@ buildscript {
         jcenter() // Warning: this repository is going to shut down soon
     }
     dependencies {
-        classpath("com.android.tools.build:gradle:7.0.0-alpha15")
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.30")
+        classpath("com.android.tools.build:gradle:7.1.0-alpha01")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.32")
 
         // Google Services plugin
-        classpath("com.google.gms:google-services:4.3.5")
+        classpath("com.google.gms:google-services:4.3.8")
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle.kts files
