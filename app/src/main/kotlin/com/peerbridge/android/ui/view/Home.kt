@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -19,22 +20,31 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.navigate
 import androidx.navigation.compose.rememberNavController
 import com.peerbridge.android.R
 import com.peerbridge.android.Screen
+import com.peerbridge.android.crypto.PublicKey
 import com.peerbridge.android.data.SampleMessageProvider
 import com.peerbridge.android.data.SampleMessagesProvider
+import com.peerbridge.android.data.keyPair
 import com.peerbridge.android.model.Message
+import com.peerbridge.android.model.asMessage
+import com.peerbridge.android.model.asMessages
 import com.peerbridge.android.ui.component.Avatar
 import com.peerbridge.android.ui.component.PeerBridgeAppBar
 import com.peerbridge.android.ui.component.PeerBridgeIcon
+import com.peerbridge.android.ui.context.LocalDatabase
+import com.peerbridge.android.ui.context.LocalKeyPair
 import com.peerbridge.android.ui.theme.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.*
 
 @Composable
 fun ChatItem(message: Message, onClick: () -> Unit = {}) {
-    // TODO: find partner public key by comparing to user public key
-    val partnerPublicKey = message.receiver
+    val localPublicKey = PublicKey(LocalKeyPair.current.publicKeyHex)
+    val partnerPublicKey = if (message.receiver == localPublicKey) message.sender else message.receiver
 
     Surface(modifier = Modifier
         .clickable(onClick = onClick)
@@ -70,7 +80,6 @@ fun ChatItemPreview(@PreviewParameter(SampleMessageProvider::class, 2)  params: 
     }
 }
 
-@Suppress("UNUSED_PARAMETER")
 @Composable
 fun Home(navController: NavHostController, messages: List<Message> = emptyList()) {
     Column(modifier = Modifier.fillMaxSize()) {
@@ -99,15 +108,34 @@ fun Home(navController: NavHostController, messages: List<Message> = emptyList()
     }
 }
 
-
 @Preview
 @Composable
-fun HomePreview(@PreviewParameter(SampleMessagesProvider::class)  params: Pair<List<Message>, Boolean>) {
+fun HomePreview(@PreviewParameter(SampleMessagesProvider::class) params: Pair<List<Message>, Boolean>) {
     val (messages, isDarkTheme) = params
-    PeerBridgeTheme(darkTheme = isDarkTheme) {
-        Surface(color = MaterialTheme.colors.background) {
-            val navController = rememberNavController()
-            Home(navController = navController, messages = messages)
+    CompositionLocalProvider(LocalKeyPair provides keyPair) {
+        PeerBridgeTheme(darkTheme = isDarkTheme) {
+            Surface(color = MaterialTheme.colors.background) {
+                val navController = rememberNavController()
+                Home(navController = navController, messages = messages)
+            }
         }
     }
+}
+
+@Composable
+fun HomeView(navController: NavHostController) {
+    val transactionDao = LocalDatabase.current.transactionDao()
+    val keyPair = LocalKeyPair.current
+    val (_, publicKeyHex) = keyPair
+
+    val messages = transactionDao
+        .findContactsByPublicKey(publicKeyHex)
+        .flatMapLatest { contacts ->
+            val contactFlows = contacts.map { transactionDao.findLastByPublicKey(it).asMessage(keyPair) }
+            combine(contactFlows, Array<Message>::toList)
+        }
+        .flowOn(Dispatchers.IO)
+        .collectAsState(initial = emptyList())
+
+    Home(navController = navController, messages = messages.value)
 }
