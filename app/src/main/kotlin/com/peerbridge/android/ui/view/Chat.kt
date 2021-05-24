@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material.*
@@ -26,13 +25,18 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.peerbridge.android.R
+import com.peerbridge.android.crypto.PublicKey
 import com.peerbridge.android.data.SampleMessageProvider
 import com.peerbridge.android.data.SampleMessagesProvider
-import com.peerbridge.android.data.publicKey
+import com.peerbridge.android.data.keyPair
 import com.peerbridge.android.model.*
 import com.peerbridge.android.ui.component.Avatar
 import com.peerbridge.android.ui.component.PeerBridgeAppBar
+import com.peerbridge.android.ui.context.LocalDatabase
+import com.peerbridge.android.ui.context.LocalKeyPair
 import com.peerbridge.android.ui.theme.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.flowOn
 
 @Composable
 fun ChatBubble(
@@ -66,6 +70,7 @@ fun ChatBubble(
     val text = when(message) {
         is ContentMessage -> message.content
         is TokenMessage -> stringResource(id = R.string.user_token)
+        is UnknownMessage -> stringResource(id = R.string.message_unknown)
     }
 
     CompositionLocalProvider(
@@ -127,10 +132,7 @@ fun ChatBubblePreview(@PreviewParameter(SampleMessageProvider::class, 2)  params
 }
 
 @Composable
-fun Chat(navController: NavHostController, messages: List<Message> = emptyList()) {
-    // TODO: find partner public key by comparing to user public key
-    val partnerPublicKey = messages[0].receiver
-
+fun Chat(navController: NavHostController, partnerPublicKey: PublicKey, messages: List<Message> = emptyList()) {
     Column(modifier = Modifier.fillMaxSize()) {
         PeerBridgeAppBar {
             Icon(
@@ -156,8 +158,7 @@ fun Chat(navController: NavHostController, messages: List<Message> = emptyList()
                 val isFirstMessageByAuthor = prevAuthor != message.sender
                 val isLastMessageByAuthor = nextAuthor != message.sender
 
-                // TODO: check if sender is current user
-                val isMe = message.sender == publicKey
+                val isMe = message.receiver == partnerPublicKey
                 val horizontalArrangement = if (isMe) Arrangement.End else Arrangement.Start
 
                 if (isFirstMessageByAuthor && index > 0) {
@@ -175,17 +176,33 @@ fun Chat(navController: NavHostController, messages: List<Message> = emptyList()
             }
         }
     }
-
 }
 
 @Preview
 @Composable
 fun ChatPreview(@PreviewParameter(SampleMessagesProvider::class) params: Pair<List<Message>, Boolean>) {
-    val (state, isDarkTheme) = params
+    val (messages, isDarkTheme) = params
+    val partnerPublicKey = messages[0].receiver
     PeerBridgeTheme(darkTheme = isDarkTheme) {
         Surface(color = MaterialTheme.colors.background) {
             val navController = rememberNavController()
-            Chat(navController, state)
+            Chat(navController, partnerPublicKey, messages)
         }
     }
+}
+
+@Composable
+fun ChatView(navController: NavHostController, partnerPublicKey: PublicKey) {
+    val messages = LocalDatabase.current
+        .transactionDao()
+        .findByPublicKey(partnerPublicKey.value)
+        .asMessages(LocalKeyPair.current)
+        .flowOn(Dispatchers.IO)
+        .collectAsState(initial = emptyList())
+
+    Chat(
+        navController = navController,
+        partnerPublicKey = partnerPublicKey,
+        messages = messages.value
+    )
 }
