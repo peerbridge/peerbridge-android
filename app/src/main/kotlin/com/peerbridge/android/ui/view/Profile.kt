@@ -28,11 +28,8 @@ import com.peerbridge.android.ui.component.Avatar
 import com.peerbridge.android.ui.component.PeerBridgeAppBar
 import com.peerbridge.android.ui.theme.PeerBridgeTheme
 
-@Immutable
-data class ProfileState(val publicKey: PublicKey)
-
 @Composable
-fun Profile(navController: NavHostController, state: ProfileState) {
+fun Profile(navController: NavHostController, publicKey: PublicKey) {
     Column(modifier = Modifier.fillMaxSize()) {
         PeerBridgeAppBar {
             Icon(
@@ -45,17 +42,17 @@ fun Profile(navController: NavHostController, state: ProfileState) {
                     .height(24.dp),
                 tint = MaterialTheme.colors.onSurface
             )
-            Text(text = state.publicKey.short, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.h5)
+            Text(text = publicKey.short, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.h5)
         }
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Avatar(publicKeyHex = state.publicKey.value, modifier = Modifier.scale(2F))
+            Avatar(publicKeyHex = publicKey.value, modifier = Modifier.scale(2F))
             Spacer(modifier = Modifier.height(48.dp))
             Text(
-                text = state.publicKey.value,
+                text = publicKey.value,
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.body2,
                 modifier = Modifier.padding(horizontal = 24.dp)
@@ -71,7 +68,7 @@ fun ProfilePreview(@PreviewParameter(SamplePublicKeyProvider::class) params: Pai
     PeerBridgeTheme(darkTheme = isDarkTheme) {
         Surface(color = MaterialTheme.colors.background) {
             val navController = rememberNavController()
-            Profile(navController, ProfileState(key))
+            Profile(navController, key)
         }
     }
 }
