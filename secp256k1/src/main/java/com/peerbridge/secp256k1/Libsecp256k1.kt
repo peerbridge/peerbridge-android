@@ -1,8 +1,5 @@
 package com.peerbridge.secp256k1
 
-import java.security.PublicKey
-import java.security.Signature
-
 object Libsecp256k1 {
     /**
      * Used to load the 'secp256k1-android' library on application startup.
