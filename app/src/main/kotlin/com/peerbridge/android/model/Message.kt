@@ -24,9 +24,9 @@ sealed class Message(@Transient var transaction: Transaction? = null) {
     }
 
     companion object {
-        operator fun invoke(data: ByteArray? = null): Message? = data?.let {
+        operator fun invoke(data: ByteArray? = null): Message = data?.let {
             Json.decodeFromString(String(it, Charsets.UTF_8))
-        }
+        } ?: UnknownMessage()
     }
 }
 
@@ -46,3 +46,10 @@ data class TokenMessage(val token: NotificationToken) : Message() {
         get() = "This user has shared a push notification token."
 }
 
+@Immutable
+@Serializable
+@SerialName("unknown")
+class UnknownMessage : Message() {
+    override val teaser: String
+        get() = "Unknown Message."
+}
