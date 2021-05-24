@@ -2,6 +2,8 @@ package com.peerbridge.android.model
 
 import android.text.format.DateUtils
 import android.util.Base64
+import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
 import androidx.room.*
 import com.peerbridge.android.crypto.Encryption
 import com.peerbridge.android.crypto.KeyPair
@@ -10,7 +12,10 @@ import com.peerbridge.android.crypto.sha256
 import com.peerbridge.android.http.Endpoints
 import com.peerbridge.android.http.HttpClient
 import com.peerbridge.android.serialization.ByteArrayBase64Serializer
+import com.peerbridge.android.ui.context.LocalDatabase
 import com.peerbridge.secp256k1.Hex
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import java.util.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
@@ -83,14 +88,30 @@ data class Transaction(
 @Dao
 interface TransactionDao {
     @Query("SELECT * FROM `transaction`")
-    fun getAll(): List<Transaction>
+    fun getAll(): Flow<List<Transaction>>
 
-    @Query("SELECT * FROM `transaction` WHERE sender LIKE :publicKeyHex OR receiver LIKE :publicKeyHex")
-    fun findByPublicKey(publicKeyHex: String): List<Transaction>
+    @Query("SELECT * FROM `transaction` WHERE sender LIKE :publicKeyHex OR receiver LIKE :publicKeyHex ORDER BY timeUnixNano ASC")
+    fun findByPublicKey(publicKeyHex: String): Flow<List<Transaction>>
+
+    @Query("SELECT * FROM `transaction` WHERE sender LIKE :publicKeyHex OR receiver LIKE :publicKeyHex ORDER BY timeUnixNano DESC LIMIT 1")
+    fun findLastByPublicKey(publicKeyHex: String): Flow<Transaction>
+
+    @Query("SELECT sender FROM `transaction` WHERE receiver LIKE :publicKeyHex UNION SELECT receiver FROM `transaction` WHERE sender LIKE :publicKeyHex")
+    fun findContactsByPublicKey(publicKeyHex: String): Flow<List<String>>
 
     @Insert
-    fun insert(vararg transaction: Transaction)
+    suspend fun insert(vararg transaction: Transaction)
 
     @Delete
-    fun delete(transaction: Transaction)
+    suspend fun delete(transaction: Transaction)
+}
+
+fun Flow<Transaction>.asMessage(keyPair: KeyPair) : Flow<Message> = map { transaction ->
+    Message(transaction.decryptData(keyPair))
+}
+
+fun Flow<List<Transaction>>.asMessages(keyPair: KeyPair) : Flow<List<Message>> = map { transactions ->
+    transactions.map { transaction ->
+        Message(transaction.decryptData(keyPair))
+    }
 }
