@@ -17,8 +17,11 @@
 
     <!-- Users -->
     <string name="user_joined">%s is using PeerBridge!</string>
-    <string name="user_token">This user has shared a push notification token!</string>
+
     <string name="user_code" translatable="false">QR-Code</string>
     <string name="user_contact">PeerBridge Contact</string>
     <string name="user_pair">Your QR code is private. If you share it with someone, that person can scan it with the camera to add you as a contact.</string>
+
+    <string name="user_token">This user has shared a push notification token!</string>
+    <string name="message_unknown">Unknown Message.</string>
 </resources>
