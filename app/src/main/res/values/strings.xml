@@ -5,8 +5,10 @@
     <string name="user_preferences_file" translatable="false">com.peerbridge.android.user</string>
     <string name="user_preferences_key" translatable="false">Key</string>
 
-    <!-- Notifications -->
     <string name="default_notification_channel_id" translatable="false">com.peerbridge.android.fcm</string>
+
+    <string name="messaging_preferences_file" translatable="false">com.peerbridge.android.messaging</string>
+    <string name="messaging_preferences_key" translatable="false">Token</string>
 
     <!-- Icons -->
     <string name="refresh" translatable="false">Refresh</string>

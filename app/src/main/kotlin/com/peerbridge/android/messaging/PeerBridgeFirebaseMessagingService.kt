@@ -9,6 +9,8 @@ import androidx.core.content.edit
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import com.peerbridge.android.R
+
 
 class PeerBridgeFirebaseMessagingService : FirebaseMessagingService() {
     private lateinit var broadcaster: LocalBroadcastManager
@@ -25,7 +27,7 @@ class PeerBridgeFirebaseMessagingService : FirebaseMessagingService() {
     override fun onNewToken(token: String) {
         Log.d(TAG, "Refreshed token: $token")
 
-        storeNotificationToken(this, token)
+        notificationToken = token
     }
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
@@ -43,10 +45,20 @@ class PeerBridgeFirebaseMessagingService : FirebaseMessagingService() {
 
     private companion object {
         const val TAG = "MessagingService"
-
-        const val FILE = "com.peerbridge.android.messaging.PeerBridgeFirebaseMessagingService"
-        const val KEY = "Token"
-
-        fun storeNotificationToken(context: Context, token: String) = with(context) { getSharedPreferences(FILE, Context.MODE_PRIVATE).edit(commit = true) { putString(KEY, token) } }
     }
 }
+
+
+var Context.notificationToken: String?
+    get() {
+        val file = getString(R.string.messaging_preferences_file)
+        val key = getString(R.string.messaging_preferences_key)
+        val preferences = getSharedPreferences(file, Context.MODE_PRIVATE)
+        return preferences.getString(key, null)
+    }
+    set(value) {
+        val file = getString(R.string.messaging_preferences_file)
+        val key = getString(R.string.messaging_preferences_key)
+        val preferences = getSharedPreferences(file, Context.MODE_PRIVATE)
+        preferences.edit(commit = true) { putString(key, value) }
+    }
