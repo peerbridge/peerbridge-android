@@ -2,6 +2,7 @@ package com.peerbridge.android.model
 
 import android.text.format.DateUtils
 import android.util.Base64
+import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.room.*
@@ -99,11 +100,23 @@ interface TransactionDao {
     @Query("SELECT sender FROM `transaction` WHERE receiver LIKE :publicKeyHex UNION SELECT receiver FROM `transaction` WHERE sender LIKE :publicKeyHex")
     fun findContactsByPublicKey(publicKeyHex: String): Flow<List<String>>
 
+    @Query("SELECT EXISTS(SELECT * FROM `transaction` WHERE id LIKE :id)")
+    fun hasTransaction(id: String): Boolean
+
     @Insert
     suspend fun insert(vararg transaction: Transaction)
 
     @Delete
     suspend fun delete(transaction: Transaction)
+
+    suspend fun update(publicKeyHex: String) {
+        val transactions = Transaction.fetch(publicKeyHex)
+        for (transaction in transactions) {
+            if (!hasTransaction(transaction.id)) {
+                insert(transaction)
+            }
+        }
+    }
 }
 
 fun Flow<Transaction>.asMessage(keyPair: KeyPair) : Flow<Message> = map { transaction ->
