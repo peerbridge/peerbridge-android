@@ -12,10 +12,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navArgument
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navDeepLink
 import com.peerbridge.android.crypto.PublicKey
 import com.peerbridge.android.data.defaultPublicKey
 import com.peerbridge.android.ui.context.LocalKeyPair
-import com.peerbridge.android.ui.context.PeerBridgeRoot
+import com.peerbridge.android.ui.context.PeerBridgeDatabaseProvider
+import com.peerbridge.android.ui.context.PeerBridgeKeyPairProvider
 import com.peerbridge.android.ui.theme.PeerBridgeTheme
 import com.peerbridge.android.ui.theme.ThemePreviewParameterProvider
 import com.peerbridge.android.ui.view.*
@@ -32,20 +34,22 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            PeerBridgeRoot {
-                PeerBridgeTheme {
-                    // A surface container using the 'background' color from the theme
-                    Surface(color = MaterialTheme.colors.background) {
-                        val navController = rememberNavController()
+            PeerBridgeKeyPairProvider {
+                PeerBridgeDatabaseProvider {
+                    PeerBridgeTheme {
+                        // A surface container using the 'background' color from the theme
+                        Surface(color = MaterialTheme.colors.background) {
+                            val navController = rememberNavController()
 
-                        NavHost(
-                            navController = navController,
-                            startDestination = Screen.Home.route
-                        ) {
-                            composable(Screen.Home.route) { HomeView(navController) }
-                            composable(Screen.Pair.route) { Pair(navController, ::startActivity) }
-                            composable(Screen.Chat.route) { ChatView(navController, it.arguments?.getString("publicKey")?.let { key -> PublicKey(key) } ?: defaultPublicKey) }
-                            composable(Screen.Profile.route) { Profile(navController, it.arguments?.getString("publicKey")?.let { key -> PublicKey(key) } ?: defaultPublicKey) }
+                            NavHost(
+                                navController = navController,
+                                startDestination = Screen.Home.route
+                            ) {
+                                composable(Screen.Home.route) { Home(navController) }
+                                composable(Screen.Pair.route) { Pair(navController, ::startActivity) }
+                                composable(Screen.Chat.route, deepLinks = listOf(navDeepLink { uriPattern = "peerbridge://pair?publicKey={publicKey}" })) { Chat(navController, it.arguments?.getString("publicKey")?.let { key -> PublicKey(key) } ?: defaultPublicKey) }
+                                composable(Screen.Profile.route) { Profile(navController, it.arguments?.getString("publicKey")?.let { key -> PublicKey(key) } ?: defaultPublicKey) }
+                            }
                         }
                     }
                 }
