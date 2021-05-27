@@ -29,7 +29,6 @@ import com.peerbridge.android.data.SampleMessagesProvider
 import com.peerbridge.android.data.keyPair
 import com.peerbridge.android.model.Message
 import com.peerbridge.android.model.asMessage
-import com.peerbridge.android.model.asMessages
 import com.peerbridge.android.ui.component.Avatar
 import com.peerbridge.android.ui.component.PeerBridgeAppBar
 import com.peerbridge.android.ui.component.PeerBridgeIcon
@@ -37,23 +36,18 @@ import com.peerbridge.android.ui.context.LocalDatabase
 import com.peerbridge.android.ui.context.LocalKeyPair
 import com.peerbridge.android.ui.theme.*
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 
 @Composable
-fun ChatItem(message: Message, onClick: () -> Unit = {}) {
-    val localPublicKey = PublicKey(LocalKeyPair.current.publicKeyHex)
-    val partnerPublicKey = if (message.receiver == localPublicKey) message.sender else message.receiver
-
+fun ChatItem(message: Message, publicKey: PublicKey, onClick: () -> Unit = {}) {
     Surface(modifier = Modifier
         .clickable(onClick = onClick)
         .padding(horizontal = 8.dp, vertical = 6.dp)) {
         Row(modifier = Modifier.padding(4.dp), verticalAlignment = Alignment.CenterVertically) {
-            Avatar(publicKeyHex = partnerPublicKey.value)
+            Avatar(publicKeyHex = publicKey.value)
             Column(modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)) {
                 Row(modifier = Modifier.height(24.dp)) {
-                    Text(text = partnerPublicKey.short, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.body1)
+                    Text(text = publicKey.short, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.body1)
                     Spacer(modifier = Modifier.weight(1F))
                     message.transaction?.let {
                         Text(text = it.relativeTime, fontSize = 12.sp, style = MaterialTheme.typography.body2)
@@ -61,7 +55,7 @@ fun ChatItem(message: Message, onClick: () -> Unit = {}) {
                 }
                 Row(modifier = Modifier.height(24.dp)) {
                     CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
-                        Text(text = stringResource(id = R.string.user_joined, partnerPublicKey.short), fontStyle = FontStyle.Italic, style = MaterialTheme.typography.body2)
+                        Text(text = stringResource(id = R.string.user_joined, publicKey.short), fontStyle = FontStyle.Italic, style = MaterialTheme.typography.body2)
                     }
                 }
             }
@@ -75,7 +69,7 @@ fun ChatItemPreview(@PreviewParameter(SampleMessageProvider::class, 2)  params: 
     val (message, isDarkTheme) = params
     PeerBridgeTheme(darkTheme = isDarkTheme) {
         Surface(color = MaterialTheme.colors.background) {
-            ChatItem(message = message)
+            ChatItem(message = message, publicKey = message.receiver)
         }
     }
 }
@@ -102,7 +96,16 @@ fun Home(navController: NavHostController, messages: List<Message> = emptyList()
             .fillMaxSize()
             .padding(vertical = 6.dp)) {
             items(messages) {
-                ChatItem(message = it)
+                val localPublicKey = PublicKey(LocalKeyPair.current.publicKeyHex)
+                val partnerPublicKey = if (it.receiver == localPublicKey) it.sender else it.receiver
+
+                ChatItem(
+                    message = it,
+                    publicKey = partnerPublicKey,
+                    onClick = {
+                        
+                    }
+                )
             }
         }
     }
