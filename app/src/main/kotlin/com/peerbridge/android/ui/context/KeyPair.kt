@@ -10,6 +10,7 @@ import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import com.peerbridge.android.R
 import com.peerbridge.android.crypto.KeyPair
+import com.peerbridge.android.data.keyPair
 
 val LocalKeyPair = compositionLocalOf { KeyPair.create() }
 
@@ -42,6 +43,14 @@ fun ComponentActivity.PeerBridgeKeyPairProvider(content: @Composable() () -> Uni
     }
 
 
+    CompositionLocalProvider(LocalKeyPair provides keyPair) {
+        content()
+    }
+}
+
+
+@Composable
+fun PreviewKeyPairProvider(content: @Composable() () -> Unit) {
     CompositionLocalProvider(LocalKeyPair provides keyPair) {
         content()
     }
