@@ -8,6 +8,15 @@ import javax.crypto.spec.GCMParameterSpec
 import javax.crypto.spec.SecretKeySpec
 
 object Encryption {
+    private val charPool : List<Char> = ('a'..'z') + ('A'..'Z') + ('0'..'9')
+
+    val random: String
+        get() = Hex.encodeToString((0 until 256/ByteSize)
+            .map { kotlin.random.Random.nextInt(0, charPool.size) }
+            .map(charPool::get)
+            .joinToString("")
+            .sha256)
+
     fun secret(privateKeyHex: String, publicKeyHex: String): SymmetricKey? {
         val keyHex = Libsecp256k1.computeSecretHex(privateKeyHex, publicKeyHex)
         return keyHex?.let { SymmetricKey(Hex.decodeString(it)) }

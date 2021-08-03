@@ -23,6 +23,9 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
+@Serializable
+internal data class TransactionRequestPayload(val transaction: Transaction)
+
 @Entity
 @Serializable
 @Suppress("ArrayInDataClass")
@@ -54,7 +57,7 @@ data class Transaction(
     @Suppress("BlockingMethodInNonBlockingContext")
     companion object {
         suspend fun create(keyPair: KeyPair, receiver: PublicKey, data: ByteArray? = null): Transaction? {
-            val id = ""
+            val id = Encryption.random
             val sender = keyPair.publicKeyHex
             val balance = 0
             val timeUnixNano: Long = Date().time * 1000L
@@ -74,9 +77,10 @@ data class Transaction(
                 data = encryptedData,
                 signature = signature
             )
-            val payload = Json.encodeToString(mapOf("transaction" to transaction))
-            val response = HttpClient.post("${Endpoints.main}/blockchain/transaction/create", payload)
-            return Json.decodeFromString(response.body!!.string())
+            val body = Json { encodeDefaults = true }.encodeToString(TransactionRequestPayload(transaction))
+            println(body)
+            val response = HttpClient.post("${Endpoints.main}/blockchain/transaction/create", body)
+            return Json.decodeFromString<TransactionRequestPayload>(response.body!!.string()).transaction
         }
 
         suspend fun fetch(publicKeyHex: String): Collection<Transaction> {

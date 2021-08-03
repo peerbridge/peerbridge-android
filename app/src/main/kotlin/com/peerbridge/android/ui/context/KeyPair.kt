@@ -1,5 +1,6 @@
 package com.peerbridge.android.ui.context
 
+import android.content.Context
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider

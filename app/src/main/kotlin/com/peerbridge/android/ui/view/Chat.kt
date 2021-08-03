@@ -14,6 +14,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
@@ -28,14 +29,87 @@ import com.peerbridge.android.R
 import com.peerbridge.android.crypto.PublicKey
 import com.peerbridge.android.data.SampleMessageProvider
 import com.peerbridge.android.data.SampleMessagesProvider
+import com.peerbridge.android.messaging.notificationToken
 import com.peerbridge.android.model.*
 import com.peerbridge.android.ui.component.Avatar
 import com.peerbridge.android.ui.component.PeerBridgeAppBar
 import com.peerbridge.android.ui.context.LocalDatabase
 import com.peerbridge.android.ui.context.LocalKeyPair
+import com.peerbridge.android.ui.context.PreviewDatabaseProvider
+import com.peerbridge.android.ui.context.PreviewKeyPairProvider
 import com.peerbridge.android.ui.theme.*
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
+
+
+@Composable
+fun ChatAction(text: String, modifier: Modifier = Modifier, initialOpen: Boolean = false, content: @Composable () -> Unit = {}) {
+    var isOpen by remember { mutableStateOf(initialOpen) }
+
+    val background = if (MaterialTheme.colors.isLight) Grey100 else Grey850
+    val iconResource = if (isOpen) R.drawable.ic_chevron_down else R.drawable.ic_chevron_right
+
+    Card(modifier = modifier.clickable { isOpen = true }, shape = MaterialTheme.shapes.large, backgroundColor = background) {
+        Column(modifier = Modifier
+            .fillMaxWidth()
+            .padding(12.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(text = text, modifier = Modifier.weight(1F))
+                Icon(
+                    imageVector = ImageVector.vectorResource(id = iconResource),
+                    contentDescription = stringResource(id = R.string.share),
+                    modifier = Modifier
+                        .padding(horizontal = 6.dp)
+                        .width(24.dp)
+                        .height(24.dp),
+                    tint = MaterialTheme.colors.onSurface
+                )
+            }
+            if (isOpen) {
+                Column(modifier = Modifier.padding(top = 12.dp, end = 36.dp)) {
+                    content()
+                }
+            }
+        }
+    }
+}
+
+//@Preview
+//@Composable
+//fun ChatActionPreview(@PreviewParameter(ThemePreviewParameterProvider::class)  isDarkTheme: Boolean) {
+//    PeerBridgeTheme(darkTheme = isDarkTheme) {
+//        Surface(color = MaterialTheme.colors.background) {
+//            ChatAction(text = stringResource(id = R.string.user_token_share), modifier = Modifier.padding(12.dp))
+//        }
+//    }
+//}
+//@Preview
+//@Composable
+//fun ChatActionOpenPreview(@PreviewParameter(ThemePreviewParameterProvider::class)  isDarkTheme: Boolean) {
+//    PeerBridgeTheme(darkTheme = isDarkTheme) {
+//        Surface(color = MaterialTheme.colors.background) {
+//            ChatAction(text = stringResource(id = R.string.user_token_share), modifier = Modifier.padding(12.dp), initialOpen = true) {
+//                Column(modifier = Modifier.padding(top = 12.dp, end = 36.dp)) {
+//                    Text(text = stringResource(id = R.string.user_token_share_description), style = MaterialTheme.typography.body2)
+//                    Spacer(modifier = Modifier.height(16.dp))
+//                    Button(onClick = { }, shape = MaterialTheme.shapes.large) {
+//                        Icon(
+//                            imageVector = ImageVector.vectorResource(id = R.drawable.ic_send),
+//                            contentDescription = stringResource(id = R.string.share),
+//                            modifier = Modifier
+//                                .padding(end = 8.dp)
+//                                .width(18.dp)
+//                                .height(18.dp),
+//                            tint = Color.White
+//                        )
+//                        Text(text = stringResource(id = R.string.user_token_share_action), color = Color.White)
+//                    }
+//                }
+//            }
+//        }
+//    }
+//}
 
 @Composable
 fun ChatBubble(
@@ -131,12 +205,37 @@ fun ChatBubblePreview(@PreviewParameter(SampleMessageProvider::class, 2)  params
 }
 
 @Composable
-fun Chat(navController: NavHostController, publicKey: PublicKey, messages: List<Message> = emptyList()) {
+fun Chat(navController: NavHostController, publicKey: PublicKey, initialMessages: List<Message> = emptyList()) {
+    val notificationToken = LocalContext.current.notificationToken
+    val transactionDao = LocalDatabase.current.transactionDao()
+    val keyPair = LocalKeyPair.current
+
+    val messages = transactionDao
+        .findByPublicKey(publicKey.value)
+        .asMessages(keyPair)
+        .flowOn(Dispatchers.IO)
+        .collectAsState(initial = initialMessages)
+
+    val hasSharedToken = messages.value.filterIsInstance<TokenMessage>().any { it.receiver == publicKey }
+    val hasPartnerToken = messages.value.filterIsInstance<TokenMessage>().any { it.sender == publicKey }
+
+    val composableScope = rememberCoroutineScope()
+
+    val shareToken = {
+        notificationToken?.let { token ->
+            composableScope.launch {
+                TokenMessage(token).send(keyPair, publicKey)?.let { transaction ->
+                    transactionDao.insert(transaction)
+                }
+            }
+        }
+    }
+
     Column(modifier = Modifier.fillMaxSize()) {
         PeerBridgeAppBar {
             Icon(
                 imageVector = ImageVector.vectorResource(id = R.drawable.ic_arrow_left),
-                contentDescription = stringResource(id = R.string.add),
+                contentDescription = stringResource(id = R.string.back),
                 modifier = Modifier
                     .clickable { navController.navigateUp() }
                     .padding(horizontal = 6.dp)
@@ -149,11 +248,12 @@ fun Chat(navController: NavHostController, publicKey: PublicKey, messages: List<
             Avatar(publicKeyHex = publicKey.value, size = 24.dp)
         }
         LazyColumn(modifier = Modifier
-            .fillMaxSize()
+            .weight(1f)
+            .fillMaxWidth()
             .padding(8.dp)) {
-            itemsIndexed(messages) { index, message ->
-                val prevAuthor = messages.getOrNull(index - 1)?.sender
-                val nextAuthor = messages.getOrNull(index + 1)?.sender
+            itemsIndexed(messages.value) { index, message ->
+                val prevAuthor = messages.value.getOrNull(index - 1)?.sender
+                val nextAuthor = messages.value.getOrNull(index + 1)?.sender
                 val isFirstMessageByAuthor = prevAuthor != message.sender
                 val isLastMessageByAuthor = nextAuthor != message.sender
 
@@ -174,6 +274,31 @@ fun Chat(navController: NavHostController, publicKey: PublicKey, messages: List<
                 }
             }
         }
+        Column(modifier = Modifier.fillMaxWidth()) {
+            if(!hasSharedToken) {
+                ChatAction(text = stringResource(id = R.string.user_token_share), modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
+                    Text(text = stringResource(id = R.string.user_token_share_description), style = MaterialTheme.typography.body2)
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Button(onClick = { shareToken() }, shape = MaterialTheme.shapes.large) {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(id = R.drawable.ic_send),
+                            contentDescription = stringResource(id = R.string.share),
+                            modifier = Modifier
+                                .padding(end = 8.dp)
+                                .width(18.dp)
+                                .height(18.dp),
+                            tint = Color.White
+                        )
+                        Text(text = stringResource(id = R.string.user_token_share_action), color = Color.White)
+                    }
+                }
+            }
+            if (!hasPartnerToken) {
+                ChatAction(text = stringResource(id = R.string.partner_token_share), modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
+                    Text(text = stringResource(id = R.string.partner_token_share_description), style = MaterialTheme.typography.body2)
+                }
+            }
+        }
     }
 }
 
@@ -182,26 +307,14 @@ fun Chat(navController: NavHostController, publicKey: PublicKey, messages: List<
 fun ChatPreview(@PreviewParameter(SampleMessagesProvider::class) params: Pair<List<Message>, Boolean>) {
     val (messages, isDarkTheme) = params
     val publicKey = messages[0].receiver
-    PeerBridgeTheme(darkTheme = isDarkTheme) {
-        Surface(color = MaterialTheme.colors.background) {
-            val navController = rememberNavController()
-            Chat(navController, publicKey, messages)
+    PreviewDatabaseProvider {
+        PreviewKeyPairProvider {
+            PeerBridgeTheme(darkTheme = isDarkTheme) {
+                Surface(color = MaterialTheme.colors.background) {
+                    val navController = rememberNavController()
+                    Chat(navController, publicKey, messages)
+                }
+            }
         }
     }
-}
-
-@Composable
-fun ChatView(navController: NavHostController, publicKey: PublicKey) {
-    val messages = LocalDatabase.current
-        .transactionDao()
-        .findByPublicKey(publicKey.value)
-        .asMessages(LocalKeyPair.current)
-        .flowOn(Dispatchers.IO)
-        .collectAsState(initial = emptyList())
-
-    Chat(
-        navController = navController,
-        publicKey = publicKey,
-        messages = messages.value
-    )
 }

@@ -32,6 +32,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import com.google.zxing.qrcode.QRCodeWriter
 import com.google.zxing.common.BitMatrix
+import com.peerbridge.android.ui.context.PreviewKeyPairProvider
 import com.peerbridge.android.ui.theme.*
 
 private fun encodeAsQRCode(text: String, size: Int = 512): ImageBitmap {
@@ -136,7 +137,7 @@ fun Pair(navController: NavHostController, onShare: (intent: Intent) -> Unit = {
 @Preview
 @Composable
 fun PairPreview(@PreviewParameter(ThemePreviewParameterProvider::class) isDarkTheme: Boolean) {
-    CompositionLocalProvider(LocalKeyPair provides keyPair) {
+    PreviewKeyPairProvider {
         PeerBridgeTheme(darkTheme = isDarkTheme) {
             Surface(color = MaterialTheme.colors.background) {
                 val navController = rememberNavController()
