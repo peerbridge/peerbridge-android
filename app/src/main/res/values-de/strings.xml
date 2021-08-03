@@ -8,4 +8,11 @@
 
     <string name="user_token">Der Nutzer hat seine Push Benachrichtigungs Token mit dir geteilt!</string>
     <string name="message_unknown">Unbekannte Nachricht.</string>
+
+    <string name="user_token_share">Du erhälst keine Push-Benachrichtigungen.</string>
+    <string name="user_token_share_description">Um Push-Benachrichtigungen zu erhalten, müssen du dein Push-Benachrichtigungs-Token freigeben.</string>
+    <string name="user_token_share_action">Token Freigeben</string>
+
+    <string name="partner_token_share">Ihr Partner empfängt keine Push-Benachrichtigungen.</string>
+    <string name="partner_token_share_description">Um Push-Benachrichtigungen zu erhalten, muss Ihr Partner sein Push-Benachrichtigungs-Token freigeben.</string>
 </resources>

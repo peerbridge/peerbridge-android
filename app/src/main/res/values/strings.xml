@@ -26,4 +26,12 @@
 
     <string name="user_token">This user has shared a push notification token!</string>
     <string name="message_unknown">Unknown Message.</string>
+
+    <string name="user_token_share">You are not receiving push notifications.</string>
+    <string name="user_token_share_description">To receive push notifications, you need to share your push notification token.</string>
+    <string name="user_token_share_action">Share Token</string>
+
+    <string name="partner_token_share">Your partner is not receiving push notifications.</string>
+    <string name="partner_token_share_description">To receive push notifications, your partner has to share his/her push notification token.</string>
+
 </resources>
