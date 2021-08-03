@@ -78,6 +78,12 @@ android {
         exclude("META-INF/LGPL2.1")
     }
 
+    testOptions {
+        unitTests {
+            isReturnDefaultValues = true
+        }
+    }
+
     sourceSets.all {
         java.srcDir("src/$name/kotlin")
     }
@@ -143,6 +149,9 @@ dependencies {
 
     // JUnit - https://github.com/junit-team/junit4
     testImplementation("junit:junit:4.13.2")
+
+    // kotlinx-coroutines-test - https://kotlin.github.io/kotlinx.coroutines/kotlinx-coroutines-test/
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.4.3")
 
     // UI Tests
     androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.0.0-beta07")
