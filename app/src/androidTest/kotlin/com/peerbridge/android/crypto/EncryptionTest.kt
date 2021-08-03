@@ -1,11 +1,14 @@
 package com.peerbridge.android.crypto
 
 import android.util.Base64
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.peerbridge.secp256k1.Hex
 import org.junit.Assert.*
 
 import org.junit.Test
+import org.junit.runner.RunWith
 
+@RunWith(AndroidJUnit4::class)
 class EncryptionTest {
     private val message = "{\"type\":\"content\",\"content\":\"Hallo Welt\"}"
     private val privateKeyHex = "a32da27d8aff2bcfd159e6a61d9fe13da6cf426bf19c7feb2b4e0d0d914d4d06"
